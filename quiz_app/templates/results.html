@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsQuiz App</title>
+        {% load static%}
+        <link rel="stylesheet" href="{% static 'css/styles.css'%}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    </head>
+        <body>
+            <div id="result-container" class="ui stacked segment">
+                {%if request.session.wrong > 0%}
+                    <h1>You Got a Total Score Of {{request.session.totalscore}} Points</h1>
+                    <h3>Correct answers: {{request.session.correct}}</h3>
+                    <h3>Wrong answers: {{request.session.wrong}}</h3>
+                    <p>better luck next time!!</p>
+                    {%if request.session.first_name%}
+                        <p>{{request.session.first_name | capfirst}} your score is saved, click <a href="{%url 'user_page'%}" class="clickhere" >here</a> to visit your profile</p>
+                    {%else%}
+                        <p>As a guest your score has not been saved, click <a href="{% url 'register_page' %}" class="clickhere">here</a> to register and join the fun!!</p>
+                    {%endif%}
+                {%else%}
+                    <h1>Congratulations!! You Got a Total Score Of {{request.session.totalscore}} Points</h1>
+                    <h3>All Of Your Answers Were Correct!!</h3>
+                    {%if request.session.first_name%}
+                        <p>{{request.session.first_name | capfirst}} your score is saved, click <a href="{%url 'user_page'%}" class="clickhere">here</a> to visit your profile</p>
+                    {%else%}
+                        <p>As a guest your score has not been saved, click <a href="{% url 'register_page' %}" class="clickhere">here</a> to register and join the fun!!</p>
+                    {%endif%}
+                {%endif%}
+                <a href="/play" class="ui large button playagain-links">Play Again</a>
+            </div>
+        </body>
+</html>

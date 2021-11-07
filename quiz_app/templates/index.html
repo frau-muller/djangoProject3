@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsQuiz App</title>
+        {% load static%}
+        <link rel="stylesheet" href="{% static 'css/styles.css'%}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    </head>
+
+    <body>
+        <div id="welcome-container">
+            <h1>Welcome To QuizMeSports</h1>
+            <p>A place where you can learn about sports by playing and communicationg with others</p>
+            <a href="/play" class="ui large button welcome-links" >Play as a guest</a>
+            <a href="{%url 'register_page' %}" class="ui large button welcome-links">Register</a>
+            <a href="{%url 'login_page' %}" class="ui large button welcome-links">Login</a>
+        </div>
+    </body>
+</html>
+

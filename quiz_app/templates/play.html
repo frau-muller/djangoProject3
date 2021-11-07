@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsQuiz App</title>
+        {% load static%}
+        <link rel="stylesheet" href="{% static 'css/styles.css'%}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity= "sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="crossorigin="anonymous"></script>
+        <script src= "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $('input[type=radio][name=category]').change(function(event){
+                    var selectedValue = $(this).attr("num_qs");
+                    $('#amount').attr("max",selectedValue);
+                    console.log(selectedValue);
+                })
+            })
+        </script>
+    </head>
+        <body>
+            <div id="play-container">
+                <form action="/quiz" method="post" class="ui large form">
+                    <div class="ui stacked segment">
+                    {% csrf_token %}
+                    <h1 class="ui center aligned header">Get ready to play!</h1>
+                    <h5>Choose a sport</h5>
+                    <div class="inline fields">
+                        {%for category in categories%}
+                            {%if category.questions_in_group.count > 0%}
+                            <div class="field">
+                            <div class="ui radio checkbox">
+                                <input id='select_category' type="radio" name="category" num_qs={{category.questions_in_group.count}} value="{{category.id}}">
+                                <label>{{category.title}}</label>
+                            </div>
+                            </div>
+                            {%endif%}
+                        {%endfor%}
+                    </div>
+                    <div class="field">
+                        <h5>How many questions do you want?</h5>
+                        <input id='amount' type="number" name="number_of_questions" min=2 max="" placeholder="choose a number">
+                    </div>
+                    <input type='submit' value='I am ready!' class="ui button btn-play">
+                </div>
+                </form>
+                {% if messages %}
+                    <div class="error-container">
+                        {% for message in messages %}
+                            <p class="text-error"><i class="exclamation circle icon"></i>{{ message}}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </body>
+</html>
