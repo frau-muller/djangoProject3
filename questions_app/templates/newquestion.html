@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsQuiz App</title>
+        {% load static%}
+        <link rel="stylesheet" href="{% static 'css/styles.css'%}"> 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity= "sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="crossorigin="anonymous"></script> 
+        <script src= "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script> 
+        
+        <script>
+            $(document).ready(function(){
+                $('#create_question_user_form').submit(function(event){
+                    $('.error-container p').remove()
+                    event.preventDefault();
+                    $.ajax({
+                        url: "{%url 'create_question'%}",
+                        method: 'post',
+                        data: $(this).serialize(),
+                        success: function(response){
+                            $("#create_question_user_form")[0].reset();
+                            $('.error-container').append("<p class='text-error'>Question has been successfully submitted</p>");
+                        },
+                        error: function(err){
+                            for( var key in err.responseJSON){
+                                $('.error-container').append(`<p class='text-error'><i class='exclamation circle icon'></i>${err.responseJSON[key]}</p>`);
+                            }
+                        }
+                    })
+                })
+            })
+            
+        </script>
+    </head>
+    
+    <body>
+        <div id="navbar" class="ui fixed borderless menu">
+            <a href="/play" class="header item">QuizMeSports</a>
+            <a href="/stats" class="item">Stats</a>
+            <a href="/dashboard" class="item">Dashboard</a>
+
+            <div class="right menu">
+                <a href="{%url 'user_page'%}" class="item">{{request.session.first_name| capfirst}}</a>
+                <a href="{%url 'logout'%}" class="item">Logout</a>
+            </div>
+        </div>
+
+        <div id="newquestion_container" class="column">
+            <form id="create_question_user_form" class="ui large form">
+                {% csrf_token %}
+                <div class="field">
+                    <label>Category</label>
+                    <select class="ui fluid dropdown" name="category">
+                        {%for category in categories%}
+                        <option value="{{category.id}}">{{category.title}}</option>
+                        {%endfor%}
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Question</label>
+                    <input type="text" name="question" placeholder="write a question">
+                </div>
+                <div class="field">
+                    <label>Answer</label>
+                    <input type="text" name="answer" placeholder="write an answer">
+                </div>
+                <input type='submit' value='Create Question' class="ui fluid large button">
+            </form>
+            <div class="error-container"></div>
+        </div>
+    </body>
+</html>

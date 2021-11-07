@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsQuiz App</title>
+        {% load static%}
+        <link rel="stylesheet" href="{% static 'css/styles.css'%}"> 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    </head>
+    
+    <body>
+        <div id="navbar" class="ui fixed borderless menu">
+            <a href="/play" class="header item">QuizMeSports</a>
+            <a href="/stats" class="item">Stats</a>
+            <a href="/dashboard" class="item">Dashboard</a>
+
+            <div class="right menu">
+                <a href="/user" class="item">{{request.session.first_name| capfirst}}</a>
+                <a href="{%url 'logout'%}" class="item">Logout</a>
+            </div>
+        </div>
+
+        <div id="newquestion_container" class="column">
+            <form action="/question/update/{{question.id}}" method="post" class="ui large form">
+                {% csrf_token %}
+                <div class="field">
+                    <label>Question</label>
+                    <input type="text" name="question" placeholder="write a question" value="{{question.question}}">
+                </div>
+                <div class="field">
+                    <label>Answer</label>
+                    <input type="text" name="answer" placeholder="write an answer"  value="{{question.answer}}">
+                </div>
+                <input type='submit' value='Update question' class="ui fluid large button">
+            </form>
+            {% if messages %}
+                <div class="error-container">      
+                    {% for message in messages %} 
+                    <p class="text-error"><i class="exclamation circle icon"></i>{{ message}}</p>       
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+    </body>
+</html>
