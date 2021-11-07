@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsQuiz App</title>
+        {% load static%}
+        <link rel="stylesheet" href="{% static 'css/styles.css'%}"> 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    </head>
+    
+    <body>
+        <div id="navbar" class="ui fixed borderless menu">
+            <a href="/play" class="header item">QuizMeSports</a>
+            <a href="/stats" class="item">Stats</a>
+            <a href="/dashboard" class="item">Dashboard</a>
+
+            <div class="right menu">
+                <a href="{%url 'user_page'%}" class="item">{{request.session.first_name| capfirst}}</a>
+                <a href="{%url 'logout'%}" class="item">Logout</a>
+            </div>
+        </div>
+        <div id="dashboard-container">
+            <h1 class="ui center aligned header">Highest Scores</h1>
+            {%for category in categories %}
+                {%if category.questions_in_category.count > 0 %}
+                    <h4 >{{category.title| capfirst}}</h4>
+                    <table class="ui table center aligned dash-table">
+                        <thead>
+                            <tr>
+                            <th>User</th>
+                            <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {%for score in scores%} 
+                            {%if score.quiz_category == category.id%}
+                                {%for user in users%}
+                                    {%if user.id == score.quiz_taken_by%}
+                                        <tr>
+                                            <td>{{ user.first_name| capfirst}}</td>
+                                            <td>{{ score.sum }}</td>
+                                        </tr>
+                                    {%endif%}
+                                {%endfor%}
+                        {%endif%}
+                        {%endfor%}
+                        </tbody>
+                    </table>
+                {%endif%}
+            {%endfor%}
+        </div>
+    </body>
+</html>

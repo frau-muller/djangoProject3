@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsQuiz App</title>
+        {% load static%}
+        <link rel="stylesheet" href="{% static 'css/styles.css'%}"> 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity= "sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="crossorigin="anonymous"></script> 
+        <script src= "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+        
+        <script>
+            $(document).ready(function(){
+                $('.delete_question').on('click', function() {
+                    var questionid = $(this).attr("id");
+                    $('.modal').modal({
+                        onApprove: function (e) {
+                            $.ajax({
+                                url: `/question/delete/${questionid}`,
+                                data: $(this).serialize(),
+                                success: response=>$('tr#line'+questionid).remove(),
+                                error: err=> console.log("error")
+                            })
+                        },}).modal('show');
+                });
+                $('.delete_user').on('click', function() {
+                    var userid = $(this).attr("id");
+                    $('.modal').modal({
+                        onApprove: function (e) {
+                            $.ajax({
+                                url: `/admin/delete/${userid}`,
+                                data: $(this).serialize(),
+                                success: response=>$('tr#lineuser'+userid).remove(),
+                                error: err=> console.log("error")
+                            })
+                        },}).modal('show');
+                });
+                $('.tabular.menu .item').tab(); 
+                $('#create_category_admin_form').submit(function(event){
+                    $('.error-container-category p').remove()
+                    event.preventDefault();
+                    $.ajax({
+                        url: "{%url 'create_category'%}",
+                        method: 'post',
+                        data: $(this).serialize(),
+                        success: function(response){
+                            $("#create_category_admin_form")[0].reset();
+                            $('.error-container-category').append("<p class='text-error'>Category has been successfully submitted</p>");
+                        },
+                        error: function(err){
+                            $('.error-container-category').append(`<p class='text-error'><i class='exclamation circle icon'></i>${err.responseJSON}</p>`);
+                        }
+                    })
+                })
+                $('#create_question_admin_form').submit(function(event){
+                    $('.error-container p').remove()
+                    event.preventDefault();
+                    $.ajax({
+                        url: "{%url 'create_question'%}",
+                        method: 'post',
+                        data: $(this).serialize(),
+                        success: function(response){
+                            $("#create_question_admin_form")[0].reset();
+                            $('.error-container').append("<p class='text-error'>Question has been successfully submitted</p>");
+                        },
+                        error: function(err){
+                            for( var key in err.responseJSON){
+                                $('.error-container').append(`<p class='text-error'><i class='exclamation circle icon'></i>${err.responseJSON[key]}</p>`);
+                            }
+                        }
+                    })
+                })
+                $(`.permissionremove`).one('click',function(event){   
+                    event.preventDefault();
+                    var userid = $(this).attr("id");
+                    $.ajax({
+                        url: `/admin/removeadmin/${userid}`,
+                        success: function(response){
+                            $(`.remove${userid}`).toggleClass('check close');
+                        }
+                    })
+                })
+
+                $(`.permissionset`).one('click', function(event){
+                    event.preventDefault();
+                    var userid = $(this).attr("id");
+                    $.ajax({
+                        url: `/admin/setadmin/${userid}`,   
+                        success: function(response){
+                            $(`.set${userid}`).toggleClass('close check');
+                        }
+                    })
+                })
+            })
+            
+        </script>
+    </head>
+    
+    <body>
+        <div id="navbar" class="ui fixed borderless menu">
+            <a href="/play" class="header item">QuizMeSports</a>
+            <a href="/stats" class="item">Stats</a>
+            <a href="/dashboard" class="item">Dashboard</a>
+
+            <div class="right menu">
+                <a href="{%url 'user_page'%}" class="item">{{request.session.first_name| capfirst}}</a>
+                <a href="{%url 'logout'%}" class="item">Logout</a>
+            </div>
+        </div>
+        <div id="admin-container">
+             
+           
+            <div class="ui mini modal">
+                <div class="header">Delete the item?</div>
+                <div class="content">
+                  <p>It will be permanently deleted</p>
+                </div>
+                <div class="actions">
+                  <div class="ui approve button">Delete</div>
+                  <div class="ui cancel button">Cancel</div>
+                </div>
+              </div>
+            <h1 class="ui center aligned header">Welcome {{request.session.first_name| capfirst}}</h1>
+            <div class="ui top attached tabular menu">
+                <a class="active item" data-tab="questions">Questions</a>
+                <a class="item" data-tab="users">Users</a>
+                <a class="item" data-tab="add_question">Add Question</a>
+                <a class="item" data-tab="add_category">Add Category</a>
+            </div>
+              <div class="ui bottom attached tab segment active" data-tab="questions">
+                <!-- <div class="field">
+                    <label>Order by</label>
+                    <select class="ui fluid dropdown" name="order_question">
+                        <option value=" ">Category</option>
+                        <option value=" ">Uploaded BY</option>
+                        <option value=" ">Date Added</option>
+                    </select>
+                </div> -->
+                <table class="ui table center aligned">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>question</th>
+                            <th>uploaded by</th>
+                            <th>edit</th>
+                            <th>delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for question in questions%}
+                        <tr id="line{{question.id}}"> 
+                            <td>{{question.belong_category.title | capfirst}}</td>
+                            <td>{{question.question|truncatewords:8}}</td>
+                            <td>{{question.created_by.first_name | capfirst}} {{question.created_by.last_name | capfirst}}</td>
+                            <td><a href="/question/edit/{{question.id}}"><i class="edit icon"></i></a></td>
+                            <td id="{{question.id}}" class="delete_question"><i class="trash icon"></i></td> 
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                  </table>
+              </div>
+
+              <div class="ui bottom attached tab segment" data-tab="users">
+                <table class="ui  table center aligned">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>User</th>
+                            <th>Joined</th>
+                            <th>#Of Posted Questions</th>
+                            <th>Delete</th>
+                            <th>Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%if current_user%}
+                        <tr style="color:red"> 
+                            <td>{{current_user.id}}</td>
+                            <td>{{current_user.first_name| capfirst}} {{current_user.last_name| capfirst}}</td>
+                            <td>{{current_user.created_at}}</td>
+                            <td>{{current_user.written_by.count}}</td>
+                            <td><a href="/admin/delete/{{current_user.id}}"><i class="trash icon"></i></a></td>
+                            <td>....</td>
+                        </tr>
+                        {%endif%}
+                        {%for user in users%}
+                        <tr id="lineuser{{user.id}}"> 
+                            <td>{{user.id}}</td>
+                            <td>{{user.first_name| capfirst}} {{user.last_name| capfirst}}</td>
+                            <td>{{user.created_at}}</td>
+                            <td>{{user.written_by.count}}</td>
+                            <td id="{{user.id}}" class="delete_user"><i class="trash icon"></i></td>  
+                            {%if user.isadmin == True%}
+                                <td><i id="{{user.id}}" class="permissionremove remove{{user.id}} check icon"></i></td>
+                            {%else%}
+                                <td ><i id="{{user.id}}" class="permissionset set{{user.id}} close icon"></i></td>
+                            {%endif%}
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                  </table>
+              </div>
+              <div class="ui bottom attached tab segment" data-tab="add_question" style="background-color: var(--secondary-color); border:none">
+                <div  class="column">
+                    <form id="create_question_admin_form" class="ui large form" >
+                        {% csrf_token %}
+                        <div class="field">
+                            <label style="color:white;">Category</label>
+                            <select class="ui fluid dropdown" name="category">
+                                {%for category in categories%}
+                                <option value="{{category.id}}">{{category.title| capfirst}}</option>
+                                {%endfor%}
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label style="color:white;">Question</label>
+                            <input type="text" name="question" placeholder="write a question">
+                        </div>
+                        <div class="field">
+                            <label style="color:white;">Answer</label>
+                            <input type="text" name="answer" placeholder="write an answer">
+                        </div>
+                        <input type='submit' value='Create question' class="ui fluid large button">
+                    </form>
+                    <div class="error-container"></div>
+                </div>
+            </div>
+            <div class="ui bottom attached tab segment" data-tab="add_category" style="background-color: var(--secondary-color); border:none">
+                <div  class="column">
+                    <form  class="ui large form"  id="create_category_admin_form">
+                        {% csrf_token %}
+                        <div class="field">
+                            <label style="color:white;">Category</label>
+                            <input type="text" name="new_category" placeholder="type a new category">
+                        </div>
+                        <input type='submit' value='Create Category' class="ui fluid large button">
+                    </form>
+                    <div class="error-container-category"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+ 
+</html>

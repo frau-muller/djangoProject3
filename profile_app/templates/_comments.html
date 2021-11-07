@@ -1,0 +1,31 @@
+{%for comment in comments%}
+<div class="comment">
+    <span  class="author">{{comment.user_comment.first_name| capfirst}} {{comment.user_comment.last_name| capfirst}}</span>
+    <div class="metadata">
+      <span class="date">{{comment.created_at|timesince}} ago</span>
+    </div>
+    <p class="text">{{comment.comment_content}}</p>
+  {%for reply in replies%}
+    {%if reply.reply_to.id == comment.id%}
+    <div class="comments">
+      <div class="comment">
+          <span class="author">{{reply.user_reply.first_name}} {{reply.user_reply.last_name}}</span>
+          <div class="metadata">
+            <span class="date">{{reply.created_at|timesince}} ago</span>
+          </div>
+          <p class="text">{{reply.reply_content}}</p>
+      </div>
+    {%endif%}
+  {%endfor%}
+  <form id="form{{comment.id}}" class="ui reply form reply-form">
+    {% csrf_token %}
+    <div class="field">
+      <textarea rows="2" name="reply"></textarea>
+      <input type="hidden" name="comment_id" value="{{comment.id}}">
+    </div>
+    <input type='submit' value='Add Reply' class="reply-link">
+  </form>
+  <div class="error-container" id="error-container{{comment.id}}"></div>
+</div>
+</div>
+{%endfor%}
