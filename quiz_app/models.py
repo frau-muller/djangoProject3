@@ -10,3 +10,6 @@ class Score(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     quiz_category = models.ForeignKey(Category, related_name='questions_in_category', on_delete=models.CASCADE)
     quiz_taken_by = models.ForeignKey(User, related_name='quiz_details', on_delete=models.CASCADE)
+
+class DS(models.Model):
+    pass
